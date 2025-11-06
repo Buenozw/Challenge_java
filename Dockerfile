@@ -2,10 +2,13 @@
 FROM eclipse-temurin:21-jdk-jammy AS build
 
 # Copia o pom.xml e a pasta src explicitamente da raiz do repositório
+RUN mvn dependency:go-offline
 RUN mvn clean package -DskipTests
 COPY . .
 
 FROM eclipse-temurin:21-jdk-jammy
+
+WORKDIR /app
 
 EXPOSE 8080
 
