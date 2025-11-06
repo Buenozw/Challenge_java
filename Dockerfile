@@ -1,17 +1,19 @@
 # Etapa 1: build
-FROM maven:3.9.6-eclipse-temurin-17 AS build
-WORKDIR /app
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 
 # Copia o pom.xml e a pasta src explicitamente da raiz do repositório
-COPY ./pom.xml /app/pom.xml
-COPY ./src /app/src
+RUN mvn apt-get update
+RUN mvn apt-get install openjdk-21-jdk -y
+COPY . .
 
-RUN mvn -f /app/pom.xml dependency:go-offline
-RUN mvn -f /app/pom.xml clean package -DskipTests
+RUN apt-get install maven -y
+RUN mvn clean install
 
-# Etapa 2: execução
-FROM eclipse-temurin:17-jdk
-WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
-ENTRYPOINT ["java", "-jar", "app.jar"]
+FROM openjdk:21-jdk-slim
+
+EXPOSE 8080
+
+COPY --from=build / target/deploy_reder-1.0.0.jar/app.jar
+
+ENTRYPOINT [ "java", "-jar", "app.jar" ]
 
