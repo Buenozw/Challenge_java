@@ -1,12 +1,14 @@
 # Etapa 1: build
-FROM eclipse-temurin:21-jdk-jammy AS build
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
 # Copia o pom.xml e a pasta src explicitamente da raiz do repositório
 RUN mvn dependency:go-offline
-RUN mvn clean package -DskipTests
 COPY . .
+
+RUN mvn clean package -DskipTests
+
 
 FROM eclipse-temurin:21-jdk-jammy
 
