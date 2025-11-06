@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Java_challeng_api
 =======
 # aluno-final-quarkus
@@ -69,3 +70,6 @@ Easily start your REST Web Services
 
 [Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
 >>>>>>> 97ac8a3 (Subindo o projeto java)
+=======
+# Challenge_java
+>>>>>>> b9d2198dff02a2612950e73d34de6907103dc185
