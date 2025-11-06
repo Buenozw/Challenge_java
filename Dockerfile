@@ -1,21 +1,13 @@
-# Etapa 1: Build com Maven
+# Etapa 1: build
 FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
-
-# Copia o pom.xml e baixa dependências (para aproveitar cache)
 COPY pom.xml .
-RUN ./mvnw dependency:go-offline
+RUN mvn dependency:go-offline
+COPY src ./src
+RUN mvn package -DskipTests
 
-# Copia o restante do projeto e empacota
-COPY . .
-RUN ./mvnw clean package -DskipTests
-
-# Etapa 2: Rodar o app
+# Etapa 2: execução
 FROM eclipse-temurin:17-jdk
 WORKDIR /app
-
-# Copia o jar gerado do build anterior
-COPY --from=build /app/target/*-runner.jar app.jar
-
-EXPOSE 8080
-CMD ["java", "-jar", "app.jar"]
+COPY --from=build /app/target/*.jar app.jar
+ENTRYPOINT ["java","-jar","app.jar"]
