@@ -1,5 +1,5 @@
 # Etapa 1: build
-FROM maven:3.9.6-eclipse-temurin-21 AS build
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 # Copia o pom.xml e a pasta src explicitamente da raiz do repositório
 RUN mvn apt-get update
@@ -9,7 +9,7 @@ COPY . .
 RUN apt-get install maven -y
 RUN mvn clean install
 
-FROM openjdk:21-jdk-slim
+FROM openjdk:17-jdk-slim
 
 EXPOSE 8080
 
