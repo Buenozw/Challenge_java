@@ -12,70 +12,69 @@ import java.util.List;
 
 public class LoginDAO {
 
-    public Connection minhaConexao;
-
-    public LoginDAO() throws SQLException, ClassNotFoundException {
-        this.minhaConexao  = new ConexaoFactory().conexao();
-    }
+    // Construtor vazio — a conexão será aberta e fechada dentro de cada método
+    public LoginDAO() {}
 
     // Insert
-    public String inserir(Login login) throws SQLException {
-        PreparedStatement stmt =
-        minhaConexao.prepareStatement("Insert into LOGIN (USUARIO, SENHA) values (?, ?)");
-        stmt.setString(1, login.getUsuario());
-        stmt.setString(2, login.getSenha());
-        //stmt.setInt(3, login.getIdLogin());
+    public String inserir(Login login) throws SQLException, ClassNotFoundException {
+        String sql = "INSERT INTO LOGIN (USUARIO, SENHA) VALUES (?, ?)";
+        try (Connection conn = new ConexaoFactory().conexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        stmt.execute();
-        stmt.close();
+            stmt.setString(1, login.getUsuario());
+            stmt.setString(2, login.getSenha());
+            stmt.executeUpdate();
 
-        return "Login cadastrado com sucesso ✅";
+            return "Login cadastrado com sucesso ✅";
+        }
     }
 
     // Delete
-    public String deletar(int idLogin) throws SQLException {
-        PreparedStatement stmt =
-        minhaConexao.prepareStatement("Delete from LOGIN where ID_LOGIN = ?");
-        stmt.setInt(1, idLogin);
+    public String deletar(int idLogin) throws SQLException, ClassNotFoundException {
+        String sql = "DELETE FROM LOGIN WHERE ID_LOGIN = ?";
+        try (Connection conn = new ConexaoFactory().conexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        stmt.execute();
-        stmt.close();
+            stmt.setInt(1, idLogin);
+            stmt.executeUpdate();
 
-        return "Login deletado com sucesso ✅!";
+            return "Login deletado com sucesso ✅!";
+        }
     }
 
-    // UpDate
-    public String atualizar (Login login) throws SQLException {
-        PreparedStatement stmt =
-        minhaConexao.prepareStatement("Update LOGIN set USUARIO = ?, SENHA = ? where ID_LOGIN = ?");
+    // Update
+    public String atualizar(Login login) throws SQLException, ClassNotFoundException {
+        String sql = "UPDATE LOGIN SET USUARIO = ?, SENHA = ? WHERE ID_LOGIN = ?";
+        try (Connection conn = new ConexaoFactory().conexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        stmt.setString(1, login.getUsuario());
-        stmt.setString(2, login.getSenha());
-        stmt.setInt(3, login.getIdLogin());
+            stmt.setString(1, login.getUsuario());
+            stmt.setString(2, login.getSenha());
+            stmt.setInt(3, login.getIdLogin());
+            stmt.executeUpdate();
 
-        stmt.executeUpdate();
-        stmt.close();
-
-        return "Login atualizado com sucesso ✅!";
+            return "Login atualizado com sucesso ✅!";
+        }
     }
 
     // Select
-    public List<Login> selecionar() throws SQLException {
-        ArrayList<Login> listLogin = new ArrayList<Login>();
+    public List<Login> selecionar() throws SQLException, ClassNotFoundException {
+        String sql = "SELECT * FROM LOGIN";
+        List<Login> listLogin = new ArrayList<>();
 
-        PreparedStatement stmt =
-        minhaConexao.prepareStatement("select * from LOGIN");
+        try (Connection conn = new ConexaoFactory().conexao();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
-        ResultSet rs = stmt.executeQuery();
-
-        while(rs.next()){
-            Login objLogin = new Login();
-
-            objLogin.setUsuario(rs.getString("USUARIO"));
-            objLogin.setSenha(rs.getString("SENHA"));
-            objLogin.setIdLogin(rs.getInt("ID_LOGIN"));
-            listLogin.add(objLogin);
+            while (rs.next()) {
+                Login objLogin = new Login();
+                objLogin.setUsuario(rs.getString("USUARIO"));
+                objLogin.setSenha(rs.getString("SENHA"));
+                objLogin.setIdLogin(rs.getInt("ID_LOGIN"));
+                listLogin.add(objLogin);
+            }
         }
+
         return listLogin;
     }
 }
