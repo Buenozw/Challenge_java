@@ -9,57 +9,75 @@ import java.util.List;
 
 public class RemediosDAO {
 
-    private Connection minhaConexao;
-
-    public RemediosDAO() throws SQLException, ClassNotFoundException {
-        this.minhaConexao = new ConexaoFactory().conexao();
+    // Construtor padrão
+    public RemediosDAO() {
     }
 
     // INSERT
-    public String inserir(Remedios remedios) throws SQLException {
+    public String inserir(Remedios remedios) throws SQLException, ClassNotFoundException {
         String sql = "INSERT INTO REMEDIOS (NOME_REMEDIO, DESCRICAO_REMEDIO, PRECO_REMEDIO, QUANTIDADE_REMEDIO) VALUES (?, ?, ?, ?)";
 
-        try (PreparedStatement stmt = minhaConexao.prepareStatement(sql)) {
+        try (Connection conn = new ConexaoFactory().conexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setString(1, remedios.getNome_remedio());
             stmt.setString(2, remedios.getDescricao_remedio());
             stmt.setDouble(3, remedios.getPreco_remedio());
             stmt.setString(4, remedios.getQuantidade_remedio());
             stmt.executeUpdate();
+
             return "Remédio cadastrado com sucesso ✅";
         }
     }
 
     // DELETE
-    public String deletar(int idRemedios) throws SQLException {
+    public String deletar(int idRemedios) throws SQLException, ClassNotFoundException {
         String sql = "DELETE FROM REMEDIOS WHERE ID_REMEDIO = ?";
 
-        try (PreparedStatement stmt = minhaConexao.prepareStatement(sql)) {
+        try (Connection conn = new ConexaoFactory().conexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, idRemedios);
-            stmt.executeUpdate();
-            return "Remédio deletado com sucesso ✅";
+            int linhasAfetadas = stmt.executeUpdate();
+
+            if (linhasAfetadas > 0) {
+                return "Remédio deletado com sucesso ✅";
+            } else {
+                return "Nenhum remédio encontrado com o ID informado ⚠️";
+            }
         }
     }
 
     // UPDATE
-    public String atualizar(Remedios remedios) throws SQLException {
-        String sql = "UPDATE REMEDIOS SET NOME_REMEDIO = ?, DESCRICAO_REMEDIO = ?, PRECO_REMEDIO = ? WHERE ID_REMEDIO = ?";
+    public String atualizar(Remedios remedios) throws SQLException, ClassNotFoundException {
+        String sql = "UPDATE REMEDIOS SET NOME_REMEDIO = ?, DESCRICAO_REMEDIO = ?, PRECO_REMEDIO = ?, QUANTIDADE_REMEDIO = ? WHERE ID_REMEDIO = ?";
 
-        try (PreparedStatement stmt = minhaConexao.prepareStatement(sql)) {
+        try (Connection conn = new ConexaoFactory().conexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setString(1, remedios.getNome_remedio());
             stmt.setString(2, remedios.getDescricao_remedio());
             stmt.setDouble(3, remedios.getPreco_remedio());
-            stmt.setInt(4, remedios.getId_remedio());
-            stmt.executeUpdate();
-            return "Remédio atualizado com sucesso ✅";
+            stmt.setString(4, remedios.getQuantidade_remedio());
+            stmt.setInt(5, remedios.getId_remedio());
+
+            int linhasAfetadas = stmt.executeUpdate();
+
+            if (linhasAfetadas > 0) {
+                return "Remédio atualizado com sucesso ✅";
+            } else {
+                return "Nenhum remédio encontrado para atualização ⚠️";
+            }
         }
     }
 
     // SELECT - TODOS
-    public List<Remedios> selecionar() throws SQLException {
+    public List<Remedios> selecionar() throws SQLException, ClassNotFoundException {
         List<Remedios> listRemedios = new ArrayList<>();
         String sql = "SELECT * FROM REMEDIOS";
 
-        try (PreparedStatement stmt = minhaConexao.prepareStatement(sql);
+        try (Connection conn = new ConexaoFactory().conexao();
+             PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -98,13 +116,6 @@ public class RemediosDAO {
             }
         }
 
-        return null; // Caso não encontre
-    }
-
-    // ENCERRAR CONEXÃO
-    public void fecharConexao() throws SQLException {
-        if (minhaConexao != null && !minhaConexao.isClosed()) {
-            minhaConexao.close();
-        }
+        return null;
     }
 }
